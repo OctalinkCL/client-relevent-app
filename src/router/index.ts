@@ -1,32 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { authRoutes } from './auth.routes'
+import { appRoutes } from './app.routes'
+import { setupGuards } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/features/auth/LoginView.vue'),
-      meta: { layout: 'auth', requiresAuth: false },
-    },
-    {
-      path: '/select-company',
-      name: 'select-company',
-      component: () => import('@/features/auth/CompanySelectorView.vue'),
-      meta: { layout: 'auth', requiresAuth: true },
-    },
-    {
-      path: '/',
-      redirect: '/dashboard',
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/features/dashboard/DashboardView.vue'),
-      meta: { layout: 'app', requiresAuth: true },
-    },
+    ...authRoutes,
+    ...appRoutes,
   ],
 })
 
-// Guards se agregarán en la siguiente fase junto al auth store
+setupGuards(router)
+
 export default router
