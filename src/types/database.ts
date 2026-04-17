@@ -1,3 +1,6 @@
+Need to install the following packages:
+supabase@2.92.1
+Ok to proceed? (y) 
 export type Json =
   | string
   | number
@@ -41,6 +44,7 @@ export type Database = {
     Tables: {
       companies: {
         Row: {
+          code: string
           created_at: string
           id: string
           name: string
@@ -48,6 +52,7 @@ export type Database = {
           type: Database["public"]["Enums"]["company_type"]
         }
         Insert: {
+          code: string
           created_at?: string
           id?: string
           name: string
@@ -55,6 +60,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["company_type"]
         }
         Update: {
+          code?: string
           created_at?: string
           id?: string
           name?: string
@@ -179,6 +185,42 @@ export type Database = {
           {
             foreignKeyName: "events_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_requests: {
+        Row: {
+          company_id: string
+          id: string
+          requested_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          requested_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          requested_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_requests_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

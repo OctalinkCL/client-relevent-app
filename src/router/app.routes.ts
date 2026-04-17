@@ -51,6 +51,11 @@ export const appRoutes: RouteRecordRaw[] = [
         name: 'tasks-assignment',
         component: () => import('@/features/tasks/TaskAssignmentView.vue'),
       },
+      {
+        path: 'staff',
+        name: 'staff',
+        component: () => import('@/features/staff/StaffView.vue'),
+      },
     ],
   },
 ]

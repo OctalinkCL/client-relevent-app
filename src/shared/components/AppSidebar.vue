@@ -21,7 +21,6 @@ import {
   LayoutDashboard,
   ClipboardList,
   CalendarDays,
-  ScanLine,
   Users,
 } from "lucide-vue-next";
 
@@ -47,7 +46,7 @@ const allNavItems: NavItem[] = [
   //   module: "access",
   //   roles: ["door"],
   // },
-  // { label: "Staff", to: "/staff", icon: Users, roles: ["admin"] },
+  { label: "Staff", to: "/staff", icon: Users, roles: ["admin"] },
 ];
 
 const navItems = computed(() =>

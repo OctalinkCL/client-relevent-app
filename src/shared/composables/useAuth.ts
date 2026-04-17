@@ -9,8 +9,8 @@ export function useAuth() {
     await store.login(email, password)
 
     if (store.memberships.length === 0) {
-      // Sin companies asignadas — no debería pasar, pero lo manejamos
-      throw new Error('Tu cuenta no tiene companies asignadas. Contacta al administrador.')
+      await router.push('/select-company')
+      return
     }
 
     if (store.memberships.length === 1) {

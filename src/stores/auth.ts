@@ -169,6 +169,7 @@ export const useAuthStore = defineStore('auth', () => {
     hasModule,
     hasRole,
     initialize,
+    fetchProfileAndMemberships,
     setActiveCompany,
     clearActiveCompany,
     login,

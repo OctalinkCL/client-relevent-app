@@ -25,7 +25,22 @@ async function selectCompany(companyId: string) {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-background px-4">
-    <Card class="w-full max-w-sm">
+    <!-- Sin membresías: solicitud pendiente -->
+    <Card v-if="store.memberships.length === 0" class="w-full max-w-sm text-center">
+      <CardHeader>
+        <CardTitle>Solicitud enviada</CardTitle>
+        <CardDescription>
+          Tu solicitud está pendiente de aprobación.<br />
+          El administrador recibirá una notificación pronto.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button variant="ghost" class="w-full" @click="logout">Cerrar sesión</Button>
+      </CardContent>
+    </Card>
+
+    <!-- Con membresías: selector normal -->
+    <Card v-else class="w-full max-w-sm">
       <CardHeader class="text-center">
         <CardTitle>Selecciona tu empresa</CardTitle>
         <CardDescription>

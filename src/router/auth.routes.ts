@@ -18,6 +18,12 @@ export const authRoutes: RouteRecordRaw[] = [
         component: () => import('@/features/auth/CompanySelectorView.vue'),
         meta: { requiresAuth: true, requiresCompany: false },
       },
+      {
+        path: 'join',
+        name: 'join',
+        component: () => import('@/features/auth/JoinView.vue'),
+        meta: { requiresAuth: false },
+      },
     ],
   },
 ]
