@@ -16,6 +16,16 @@ export const appRoutes: RouteRecordRaw[] = [
         name: 'dashboard',
         component: () => import('@/features/dashboard/DashboardView.vue'),
       },
+      {
+        path: 'events',
+        name: 'events',
+        component: () => import('@/features/events/EventsView.vue'),
+      },
+      {
+        path: 'events/create',
+        name: 'events-create',
+        component: () => import('@/features/events/EventCreateView.vue'),
+      },
     ],
   },
 ]
