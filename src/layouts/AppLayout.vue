@@ -8,8 +8,10 @@ import AppHeader from "@/shared/components/AppHeader.vue";
   <SidebarProvider>
     <AppSidebar />
     <SidebarInset>
-      <AppHeader />
-      <RouterView />
+      <AppHeader class="lg:hidden" />
+      <div class="container mx-auto px-4">
+        <RouterView />
+      </div>
     </SidebarInset>
   </SidebarProvider>
 </template>
