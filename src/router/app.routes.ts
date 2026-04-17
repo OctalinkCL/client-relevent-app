@@ -31,6 +31,26 @@ export const appRoutes: RouteRecordRaw[] = [
         name: 'events-detail',
         component: () => import('@/features/events/EventDetailView.vue'),
       },
+      {
+        path: 'tasks',
+        name: 'tasks',
+        component: () => import('@/features/tasks/TasksView.vue'),
+      },
+      {
+        path: 'tasks/create',
+        name: 'tasks-create',
+        component: () => import('@/features/tasks/TaskCreateView.vue'),
+      },
+      {
+        path: 'tasks/:id',
+        name: 'tasks-detail',
+        component: () => import('@/features/tasks/TaskDetailView.vue'),
+      },
+      {
+        path: 'tasks/assignment/:id',
+        name: 'tasks-assignment',
+        component: () => import('@/features/tasks/TaskAssignmentView.vue'),
+      },
     ],
   },
 ]

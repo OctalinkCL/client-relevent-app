@@ -209,6 +209,141 @@ export type Database = {
         }
         Relationships: []
       }
+      task_assignments: {
+        Row: {
+          assigned_at: string
+          id: string
+          status: string
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          id?: string
+          status?: string
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          id?: string
+          status?: string
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_submissions: {
+        Row: {
+          assignment_id: string
+          id: string
+          observation: string | null
+          screenshot_url: string
+          submitted_at: string
+        }
+        Insert: {
+          assignment_id: string
+          id?: string
+          observation?: string | null
+          screenshot_url: string
+          submitted_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          id?: string
+          observation?: string | null
+          screenshot_url?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "task_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          caption_template: string | null
+          company_id: string
+          created_at: string
+          created_by: string
+          deadline: string
+          description: string | null
+          event_id: string
+          flyer_url: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          caption_template?: string | null
+          company_id: string
+          created_at?: string
+          created_by: string
+          deadline: string
+          description?: string | null
+          event_id: string
+          flyer_url?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          caption_template?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          deadline?: string
+          description?: string | null
+          event_id?: string
+          flyer_url?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
