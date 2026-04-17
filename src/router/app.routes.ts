@@ -26,6 +26,11 @@ export const appRoutes: RouteRecordRaw[] = [
         name: 'events-create',
         component: () => import('@/features/events/EventCreateView.vue'),
       },
+      {
+        path: 'events/:id',
+        name: 'events-detail',
+        component: () => import('@/features/events/EventDetailView.vue'),
+      },
     ],
   },
 ]
