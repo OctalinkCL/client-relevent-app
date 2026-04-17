@@ -137,6 +137,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  function clearActiveCompany() {
+    activeCompany.value = null
+    activeRole.value = null
+    companyFeatureOverrides.value = []
+  }
+
   async function logout() {
     await supabase.auth.signOut()
     authUser.value = null
@@ -164,6 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
     hasRole,
     initialize,
     setActiveCompany,
+    clearActiveCompany,
     login,
     logout,
   }

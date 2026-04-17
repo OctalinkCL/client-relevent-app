@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
-import { useAuth } from '@/shared/composables/useAuth'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { useAuthStore } from "@/stores/auth";
+import { useAuth } from "@/shared/composables/useAuth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,39 +10,35 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Menu, Building2, LogOut, ChevronsUpDown } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Building2, LogOut, ChevronsUpDown } from "lucide-vue-next";
+import { useRouter } from "vue-router";
 
-defineEmits<{ toggleSidebar: [] }>()
-
-const store = useAuthStore()
-const { logout } = useAuth()
-const router = useRouter()
+const store = useAuthStore();
+const { logout } = useAuth();
+const router = useRouter();
 
 const initials = (name: string) =>
-  name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+  name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 async function switchCompany() {
-  store.activeCompany = null
-  store.activeRole = null
-  router.push('/select-company')
+  store.clearActiveCompany();
+  router.push("/select-company");
 }
 </script>
 
 <template>
-  <header class="flex items-center justify-between h-14 px-4 border-b bg-card shrink-0">
+  <header
+    class="flex items-center justify-between h-14 px-4 border-b bg-card shrink-0"
+  >
     <!-- Toggle sidebar (móvil) -->
-    <Button
-      variant="ghost"
-      size="icon"
-      class="lg:hidden"
-      @click="$emit('toggleSidebar')"
-    >
-      <Menu class="size-5" />
-    </Button>
-
+    <SidebarTrigger />
     <!-- Nombre company activa -->
     <div class="flex items-center gap-2 text-sm font-medium lg:ml-0 ml-2">
       <Building2 class="size-4 text-muted-foreground" />
@@ -54,7 +51,7 @@ async function switchCompany() {
         <Button variant="ghost" class="flex items-center gap-2 h-9 px-2">
           <Avatar class="size-7">
             <AvatarFallback class="text-xs">
-              {{ store.user ? initials(store.user.full_name) : '?' }}
+              {{ store.user ? initials(store.user.full_name) : "?" }}
             </AvatarFallback>
           </Avatar>
           <span class="hidden sm:block text-sm max-w-32 truncate">
@@ -68,7 +65,9 @@ async function switchCompany() {
         <DropdownMenuLabel class="font-normal">
           <div class="flex flex-col gap-0.5">
             <span class="font-medium text-sm">{{ store.user?.full_name }}</span>
-            <span class="text-xs text-muted-foreground capitalize">{{ store.activeRole }}</span>
+            <span class="text-xs text-muted-foreground capitalize">{{
+              store.activeRole
+            }}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -84,7 +83,10 @@ async function switchCompany() {
         </DropdownMenuItem>
         <DropdownMenuSeparator v-if="store.memberships.length > 1" />
 
-        <DropdownMenuItem class="gap-2 text-destructive focus:text-destructive" @click="logout">
+        <DropdownMenuItem
+          class="gap-2 text-destructive focus:text-destructive"
+          @click="logout"
+        >
           <LogOut class="size-4" />
           Cerrar sesión
         </DropdownMenuItem>
