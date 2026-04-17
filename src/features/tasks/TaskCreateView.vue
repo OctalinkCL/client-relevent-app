@@ -22,6 +22,7 @@ const { data: sellers } = useCompanySellers()
 const { mutate: createTask, isPending, error } = useCreateTask()
 
 const eventId = ref('')
+const selectedEvent = computed(() => events.value?.find(e => e.id === eventId.value))
 const title = ref('')
 const description = ref('')
 const captionTemplate = ref('')
@@ -32,6 +33,7 @@ const flyerFile = ref<File | null>(null)
 const flyerPreview = ref<string | null>(null)
 const isUploadingFlyer = ref(false)
 
+const selectedSet = computed(() => new Set(selectedSellerIds.value))
 const allSelected = computed(() =>
   !!sellers.value?.length && selectedSellerIds.value.length === sellers.value.length
 )
@@ -74,6 +76,8 @@ async function submit() {
     } finally {
       isUploadingFlyer.value = false
     }
+  } else {
+    flyerUrl = (selectedEvent.value as any)?.flyer_url ?? undefined
   }
 
   createTask({
@@ -160,13 +164,21 @@ const today = dayjs().format('YYYY-MM-DD')
           <!-- Flyer -->
           <div class="flex flex-col gap-1.5">
             <Label>Flyer <span class="text-muted-foreground">(opcional)</span></Label>
-            <div v-if="flyerPreview" class="flex items-center gap-4">
-              <img :src="flyerPreview" class="w-20 h-28 object-cover rounded-lg" alt="preview" />
-              <Label for="flyer-input">
-                <Button variant="outline" size="sm" as="span">
-                  <Upload class="size-4 mr-1" /> Cambiar
-                </Button>
-              </Label>
+            <div v-if="flyerPreview || (selectedEvent as any)?.flyer_url" class="flex items-center gap-4">
+              <img
+                :src="flyerPreview ?? (selectedEvent as any).flyer_url"
+                class="w-20 h-28 object-cover rounded-lg"
+                alt="preview"
+              />
+              <div class="flex flex-col gap-2">
+                <p v-if="!flyerPreview" class="text-xs text-muted-foreground">Flyer del evento</p>
+                <Label for="flyer-input">
+                  <Button variant="outline" size="sm" as="span">
+                    <Upload class="size-4 mr-1" />
+                    {{ flyerPreview ? 'Cambiar' : 'Usar otro flyer' }}
+                  </Button>
+                </Label>
+              </div>
             </div>
             <Label
               v-else
@@ -200,11 +212,11 @@ const today = dayjs().format('YYYY-MM-DD')
               >
                 <Checkbox
                   :id="seller.user_id"
-                  :checked="selectedSellerIds.includes(seller.user_id)"
+                  :checked="selectedSet.has(seller.user_id)"
                   @update:checked="toggleSeller(seller.user_id)"
                 />
                 <Label :for="seller.user_id" class="cursor-pointer font-normal">
-                  {{ (seller.profile as any)?.full_name ?? seller.user_id }}
+                  {{ (seller as any).full_name ?? seller.user_id }}
                 </Label>
               </div>
             </div>

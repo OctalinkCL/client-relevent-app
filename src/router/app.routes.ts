@@ -24,11 +24,13 @@ export const appRoutes: RouteRecordRaw[] = [
       {
         path: 'events/create',
         name: 'events-create',
+        meta: { roles: ['admin'] },
         component: () => import('@/features/events/EventCreateView.vue'),
       },
       {
         path: 'events/:id',
         name: 'events-detail',
+        meta: { roles: ['admin'] },
         component: () => import('@/features/events/EventDetailView.vue'),
       },
       {
@@ -39,11 +41,13 @@ export const appRoutes: RouteRecordRaw[] = [
       {
         path: 'tasks/create',
         name: 'tasks-create',
+        meta: { roles: ['admin'] },
         component: () => import('@/features/tasks/TaskCreateView.vue'),
       },
       {
         path: 'tasks/:id',
         name: 'tasks-detail',
+        meta: { roles: ['admin'] },
         component: () => import('@/features/tasks/TaskDetailView.vue'),
       },
       {
@@ -54,6 +58,7 @@ export const appRoutes: RouteRecordRaw[] = [
       {
         path: 'staff',
         name: 'staff',
+        meta: { roles: ['admin'] },
         component: () => import('@/features/staff/StaffView.vue'),
       },
     ],

@@ -25,5 +25,11 @@ export function setupGuards(router: Router) {
     if (isAuthenticated && requiresCompany && !hasCompany) {
       return { name: 'select-company' }
     }
+
+    // Rol insuficiente → dashboard
+    const requiredRoles = to.meta.roles as string[] | undefined
+    if (requiredRoles && store.activeRole && !requiredRoles.includes(store.activeRole)) {
+      return { name: 'dashboard' }
+    }
   })
 }

@@ -11,14 +11,10 @@ export function useCompanySellers() {
     queryKey: ['company-sellers', companyId],
     enabled: computed(() => !!companyId.value),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('company_members')
-        .select('user_id, profile:profiles(id, full_name, avatar_url)')
-        .eq('company_id', companyId.value!)
-        .eq('role', 'seller')
-
+      const { data, error } = await (supabase as any)
+        .rpc('list_company_members', { p_company_id: companyId.value! })
       if (error) throw error
-      return data
+      return ((data ?? []) as any[]).filter(m => m.role === 'seller')
     },
   })
 }
