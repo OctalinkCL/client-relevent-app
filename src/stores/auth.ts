@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/shared/lib/supabase'
 import { PLAN_MODULES } from '@/shared/lib/plans'
 import type {
@@ -11,64 +12,101 @@ import type {
   FeatureName,
 } from '@/shared/lib/supabase'
 
+let _initPromise: Promise<void> | null = null
+
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<Profile | null>(null)
+  // Auth user de Supabase (sesión) — se setea directo del localStorage, sin queries
+  const authUser = ref<User | null>(null)
+  // Profile del usuario (desde nuestra tabla profiles)
+  const profile = ref<Profile | null>(null)
   const memberships = ref<(CompanyMember & { company: Company })[]>([])
   const activeCompany = ref<Company | null>(null)
   const activeRole = ref<MemberRole | null>(null)
   const companyFeatureOverrides = ref<CompanyFeature[]>([])
   const isLoading = ref(false)
 
-  // Módulos activos = los del plan + overrides del superadmin
+  // isAuthenticated se basa en la sesión de Supabase, NO en la query al profile
+  const isAuthenticated = computed(() => !!authUser.value)
+
   const activeModules = computed((): FeatureName[] => {
     if (!activeCompany.value) return []
-
     const planModules = PLAN_MODULES[activeCompany.value.plan] as FeatureName[]
-
     const overrideEnabled = companyFeatureOverrides.value
-      .filter(f => f.is_enabled)
-      .map(f => f.feature)
-
+      .filter(f => f.is_enabled).map(f => f.feature)
     const overrideDisabled = companyFeatureOverrides.value
-      .filter(f => !f.is_enabled)
-      .map(f => f.feature)
-
-    return [
-      ...new Set([...planModules, ...overrideEnabled]),
-    ].filter(f => !overrideDisabled.includes(f))
+      .filter(f => !f.is_enabled).map(f => f.feature)
+    return [...new Set([...planModules, ...overrideEnabled])]
+      .filter(f => !overrideDisabled.includes(f))
   })
 
+  // Getters de rol
   const hasModule = (feature: FeatureName) => activeModules.value.includes(feature)
   const hasRole = (...roles: MemberRole[]) => activeRole.value !== null && roles.includes(activeRole.value)
   const isAdmin = computed(() => activeRole.value === 'admin')
   const isSeller = computed(() => activeRole.value === 'seller')
   const isDoor = computed(() => activeRole.value === 'door')
 
-  async function loadSession() {
-    isLoading.value = true
-    try {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      if (!authUser) { reset(); return }
+  // Compatibilidad: algunos componentes usan store.user para nombre/avatar
+  const user = computed(() => profile.value)
 
-      // Cargar profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .single()
+  function initialize() {
+    if (!_initPromise) {
+      _initPromise = (async () => {
+        isLoading.value = true
+        try {
+          // getSession() lee del localStorage — no hace llamada de red
+          const { data: { session } } = await supabase.auth.getSession()
+          authUser.value = session?.user ?? null
 
-      if (!profile) { reset(); return }
-      user.value = profile
+          if (authUser.value) {
+            await fetchProfileAndMemberships(authUser.value.id)
+          }
 
-      // Cargar memberships con datos de company
-      const { data: memberData } = await supabase
-        .from('company_members')
-        .select('*, company:companies(*)')
-        .eq('user_id', authUser.id)
+          // Escuchar cambios: token refresh, logout externo, etc.
+          // INITIAL_SESSION se ignora porque ya lo manejamos con getSession() arriba
+          supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'INITIAL_SESSION') return
 
-      memberships.value = (memberData ?? []) as (CompanyMember & { company: Company })[]
-    } finally {
-      isLoading.value = false
+            authUser.value = session?.user ?? null
+
+            if (session?.user && !profile.value) {
+              await fetchProfileAndMemberships(session.user.id)
+            }
+            if (!session?.user) {
+              profile.value = null
+              memberships.value = []
+              activeCompany.value = null
+              activeRole.value = null
+              companyFeatureOverrides.value = []
+            }
+          })
+        } finally {
+          isLoading.value = false
+        }
+      })()
+    }
+    return _initPromise
+  }
+
+  async function fetchProfileAndMemberships(userId: string) {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (profileData) profile.value = profileData
+
+    const { data: memberData } = await supabase
+      .from('company_members')
+      .select('*, company:companies(*)')
+      .eq('user_id', userId)
+
+    memberships.value = (memberData ?? []) as (CompanyMember & { company: Company })[]
+
+    // Auto-seleccionar si solo tiene una company
+    if (memberships.value.length === 1) {
+      await setActiveCompany(memberships.value[0].company)
     }
   }
 
@@ -79,7 +117,6 @@ export const useAuthStore = defineStore('auth', () => {
     activeCompany.value = company
     activeRole.value = membership.role
 
-    // Cargar feature overrides de esta company
     const { data } = await supabase
       .from('company_features')
       .select('*')
@@ -89,40 +126,43 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    await loadSession()
+    isLoading.value = true
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      authUser.value = data.user
+      await fetchProfileAndMemberships(data.user.id)
+    } finally {
+      isLoading.value = false
+    }
   }
 
   async function logout() {
     await supabase.auth.signOut()
-    reset()
-  }
-
-  function reset() {
-    user.value = null
+    authUser.value = null
+    profile.value = null
     memberships.value = []
     activeCompany.value = null
     activeRole.value = null
     companyFeatureOverrides.value = []
+    _initPromise = null
   }
 
   return {
-    // Estado
     user,
+    profile,
     memberships,
     activeCompany,
     activeRole,
     activeModules,
     isLoading,
-    // Computed
+    isAuthenticated,
     isAdmin,
     isSeller,
     isDoor,
-    // Métodos
     hasModule,
     hasRole,
-    loadSession,
+    initialize,
     setActiveCompany,
     login,
     logout,

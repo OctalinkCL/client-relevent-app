@@ -4,13 +4,9 @@ import { useAuthStore } from '@/stores/auth'
 export function setupGuards(router: Router) {
   router.beforeEach(async (to) => {
     const store = useAuthStore()
+    await store.initialize()
 
-    // Cargar sesión si el store está vacío
-    if (!store.user && !store.isLoading) {
-      await store.loadSession()
-    }
-
-    const isAuthenticated = !!store.user
+    const isAuthenticated = store.isAuthenticated
     const hasCompany = !!store.activeCompany
     const requiresAuth = to.meta.requiresAuth !== false
     const requiresCompany = to.meta.requiresCompany !== false
