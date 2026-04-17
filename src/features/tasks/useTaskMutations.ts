@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/shared/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import dayjs from '@/shared/lib/dayjs'
+import { validateImageFile } from '@/shared/lib/validateFile'
 
 interface CreateTaskInput {
   eventId: string
@@ -29,38 +30,47 @@ export function useCreateTask() {
       const createdBy = store.profile!.id
       const deadline = dayjs.tz(`${deadlineDate} ${deadlineTime}`, 'America/Santiago').toISOString()
 
-      const { data: task, error: taskError } = await supabase
-        .from('tasks')
-        .insert({
-          event_id: eventId,
-          company_id: companyId,
-          title,
-          description: description || null,
-          caption_template: captionTemplate || null,
-          deadline,
-          flyer_url: flyerUrl || null,
-          created_by: createdBy,
-        })
-        .select()
-        .single()
+      let uploadedPath: string | null = null
 
-      if (taskError) throw taskError
+      try {
+        const { data: task, error: taskError } = await supabase
+          .from('tasks')
+          .insert({
+            event_id: eventId,
+            company_id: companyId,
+            title,
+            description: description || null,
+            caption_template: captionTemplate || null,
+            deadline,
+            flyer_url: flyerUrl || null,
+            created_by: createdBy,
+          })
+          .select()
+          .single()
 
-      if (sellerIds.length > 0) {
-        const assignments = sellerIds.map(userId => ({
-          task_id: task.id,
-          user_id: userId,
-          status: 'pending',
-        }))
+        if (taskError) throw taskError
 
-        const { error: assignError } = await supabase
-          .from('task_assignments')
-          .insert(assignments)
+        if (sellerIds.length > 0) {
+          const assignments = sellerIds.map(userId => ({
+            task_id: task.id,
+            user_id: userId,
+            status: 'pending',
+          }))
 
-        if (assignError) throw assignError
+          const { error: assignError } = await supabase
+            .from('task_assignments')
+            .insert(assignments)
+
+          if (assignError) throw assignError
+        }
+
+        return task
+      } catch (e) {
+        if (uploadedPath) {
+          await supabase.storage.from('relevent-media').remove([uploadedPath])
+        }
+        throw e
       }
-
-      return task
     },
     onSuccess: (task) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
@@ -120,7 +130,8 @@ export function useSubmitTask() {
   })
 }
 
-export async function uploadTaskFlyer(companyId: string, taskId: string, file: File): Promise<string> {
+export async function uploadTaskFlyer(companyId: string, taskId: string, file: File): Promise<{ url: string; path: string }> {
+  validateImageFile(file)
   const ext = file.name.split('.').pop()
   const path = `tasks/${companyId}/${taskId}/flyer.${ext}`
 
@@ -131,10 +142,11 @@ export async function uploadTaskFlyer(companyId: string, taskId: string, file: F
   if (error) throw error
 
   const { data } = supabase.storage.from('relevent-media').getPublicUrl(path)
-  return data.publicUrl
+  return { url: data.publicUrl, path }
 }
 
 export async function uploadSubmissionScreenshot(userId: string, assignmentId: string, file: File): Promise<string> {
+  validateImageFile(file)
   const ext = file.name.split('.').pop()
   const path = `submissions/${userId}/${assignmentId}/screenshot.${ext}`
 

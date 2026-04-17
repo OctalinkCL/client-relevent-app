@@ -1,6 +1,3 @@
-Need to install the following packages:
-supabase@2.92.1
-Ok to proceed? (y) 
 export type Json =
   | string
   | number
@@ -391,7 +388,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_shares_company: {
+        Args: { member_user_id: string }
+        Returns: boolean
+      }
+      list_company_members: {
+        Args: { p_company_id: string }
+        Returns: {
+          avatar_url: string
+          company_id: string
+          created_at: string
+          full_name: string
+          id: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }[]
+      }
+      list_member_requests: {
+        Args: { p_company_id: string }
+        Returns: {
+          avatar_url: string
+          company_id: string
+          full_name: string
+          id: string
+          requested_at: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       company_plan: "starter" | "pro" | "enterprise"

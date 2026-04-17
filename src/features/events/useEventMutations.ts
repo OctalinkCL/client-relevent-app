@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/shared/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import dayjs from '@/shared/lib/dayjs'
+import { validateImageFile } from '@/shared/lib/validateFile'
 
 interface CreateEventInput {
   name: string
@@ -63,6 +64,7 @@ export function useUpdateEvent(eventId: string) {
 }
 
 export async function uploadFlyer(companyId: string, eventId: string, file: File): Promise<string> {
+  validateImageFile(file)
   const ext = file.name.split('.').pop()
   const path = `events/${companyId}/${eventId}/flyer.${ext}`
 

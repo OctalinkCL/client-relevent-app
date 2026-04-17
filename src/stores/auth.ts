@@ -89,24 +89,36 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchProfileAndMemberships(userId: string) {
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (profileData) profile.value = profileData
+      if (profileError) throw profileError
+      if (profileData) profile.value = profileData
 
-    const { data: memberData } = await supabase
-      .from('company_members')
-      .select('*, company:companies(*)')
-      .eq('user_id', userId)
+      const { data: memberData, error: memberError } = await supabase
+        .from('company_members')
+        .select('*, company:companies(*)')
+        .eq('user_id', userId)
 
-    memberships.value = (memberData ?? []) as (CompanyMember & { company: Company })[]
+      if (memberError) throw memberError
+      memberships.value = (memberData ?? []) as (CompanyMember & { company: Company })[]
 
-    // Auto-seleccionar si solo tiene una company
-    if (memberships.value.length === 1) {
-      await setActiveCompany(memberships.value[0].company)
+      if (memberships.value.length === 1) {
+        await setActiveCompany(memberships.value[0].company)
+      }
+    } catch {
+      await supabase.auth.signOut()
+      authUser.value = null
+      profile.value = null
+      memberships.value = []
+      activeCompany.value = null
+      activeRole.value = null
+      companyFeatureOverrides.value = []
+      _initPromise = null
     }
   }
 

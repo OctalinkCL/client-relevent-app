@@ -75,7 +75,8 @@ async function submit() {
     isUploadingFlyer.value = true
     try {
       const tempId = crypto.randomUUID()
-      flyerUrl = await uploadTaskFlyer(store.activeCompany!.id, tempId, flyerFile.value)
+      const result = await uploadTaskFlyer(store.activeCompany!.id, tempId, flyerFile.value)
+      flyerUrl = result.url
     } finally {
       isUploadingFlyer.value = false
     }
