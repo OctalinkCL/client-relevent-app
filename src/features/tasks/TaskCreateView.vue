@@ -47,9 +47,12 @@ function toggleAll() {
 }
 
 function toggleSeller(userId: string) {
-  const idx = selectedSellerIds.value.indexOf(userId)
-  if (idx >= 0) selectedSellerIds.value.splice(idx, 1)
-  else selectedSellerIds.value.push(userId)
+  const current = selectedSellerIds.value
+  if (current.includes(userId)) {
+    selectedSellerIds.value = current.filter(id => id !== userId)
+  } else {
+    selectedSellerIds.value = [...current, userId]
+  }
 }
 
 function onFlyerChange(e: Event) {
@@ -212,8 +215,8 @@ const today = dayjs().format('YYYY-MM-DD')
               >
                 <Checkbox
                   :id="seller.user_id"
-                  :checked="selectedSet.has(seller.user_id)"
-                  @update:checked="toggleSeller(seller.user_id)"
+                  :model-value="selectedSet.has(seller.user_id)"
+                  @update:model-value="toggleSeller(seller.user_id)"
                 />
                 <Label :for="seller.user_id" class="cursor-pointer font-normal">
                   {{ (seller as any).full_name ?? seller.user_id }}
