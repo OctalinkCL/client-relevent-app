@@ -5,11 +5,11 @@ import AppHeader from "@/shared/components/AppHeader.vue";
 </script>
 
 <template>
-  <SidebarProvider>
+  <SidebarProvider :default-open="false">
     <AppSidebar />
     <SidebarInset>
-      <AppHeader class="lg:hidden" />
-      <div class="container mx-auto px-4">
+      <AppHeader />
+      <div class="container mx-auto px-4 pt-4">
         <RouterView />
       </div>
     </SidebarInset>
