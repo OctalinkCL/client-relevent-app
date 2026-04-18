@@ -35,7 +35,7 @@ function formatRange(startsAt: string, endsAt: string) {
       <RouterLink v-if="store.isAdmin" :to="{ name: 'events-create' }">
         <Button class="cursor-pointer">
           <Plus class="size-4 mr-1" />
-          Nuevo evento
+          Nuevo Evento
         </Button>
       </RouterLink>
     </div>
@@ -82,7 +82,13 @@ function formatRange(startsAt: string, endsAt: string) {
               >
             </p>
             <h3 class="text-xl font-semibold">{{ event.name }}</h3>
-            <Button class="mt-auto" variant="outline">Revisar Evento</Button>
+            <Button class="mt-auto" size="sm" variant="outline" as-child>
+              <RouterLink
+                :to="{ name: 'events-detail', params: { id: event.id } }"
+              >
+                Revisar Evento
+              </RouterLink>
+            </Button>
           </div>
         </li>
       </ul>

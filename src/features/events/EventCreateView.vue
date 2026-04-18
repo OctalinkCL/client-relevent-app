@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { RouterLink } from "vue-router";
-import { ChevronLeft } from "lucide-vue-next";
+import { Info } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +18,8 @@ import dayjs from "@/shared/lib/dayjs";
 
 const name = ref("");
 const date = ref(dayjs().format("YYYY-MM-DD"));
-const startTime = ref("22:00");
-const endTime = ref("03:00");
+const startTime = ref("20:00");
+const endTime = ref("05:00");
 
 const today = dayjs().format("YYYY-MM-DD");
 
@@ -54,24 +54,22 @@ function submit() {
 </script>
 
 <template>
-  <div>
-    <RouterLink
-      :to="{ name: 'events' }"
-      class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-    >
-      <ChevronLeft class="size-4" />
-      Eventos
-    </RouterLink>
+  <div id="page-create" class="grid gap-4 max-w-3xl">
+    <!-- Header -->
+    <header>
+      <Button variant="secondary" size="sm" as-child>
+        <RouterLink :to="{ name: 'events' }"> Volver a Eventos </RouterLink>
+      </Button>
+    </header>
 
-    <Button variant="outline"> Button </Button>
-
-    <Card>
+    <Card class="ring-0">
       <CardHeader>
-        <CardTitle>Crear evento</CardTitle>
+        <CardTitle class="text-base font-semibold">Crear evento</CardTitle>
       </CardHeader>
       <CardContent>
-        <form class="flex flex-col gap-5" @submit.prevent="submit">
-          <div class="flex flex-col gap-1.5">
+        <form class="grid grid-cols-2 gap-4" @submit.prevent="submit">
+          <!-- Name -->
+          <div class="form-group col-span-2">
             <Label for="name">Nombre</Label>
             <Input
               id="name"
@@ -80,53 +78,61 @@ function submit() {
               required
             />
           </div>
-
-          <div class="flex flex-col gap-1.5">
+          <!-- Date -->
+          <div class="form-group col-span-2">
             <Label for="date">Fecha</Label>
             <Input id="date" v-model="date" type="date" :min="today" required />
           </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1.5">
-              <Label>Hora inicio</Label>
-              <Select v-model="startTime">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem v-for="t in timeOptions" :key="t" :value="t">
-                    {{ t }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-              <Label>Hora fin</Label>
-              <Select v-model="endTime">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem v-for="t in timeOptions" :key="t" :value="t">
-                    {{ t }}{{ isNextDay(t) ? " (día sig.)" : "" }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <p
-                v-if="isNextDay(endTime)"
-                class="text-xs text-muted-foreground"
-              >
-                Termina el día siguiente
-              </p>
-            </div>
+          <!-- Start Time -->
+          <div class="form-group col-span-1">
+            <Label>Hora inicio</Label>
+            <Select v-model="startTime">
+              <SelectTrigger class="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="t in timeOptions" :key="t" :value="t">
+                  {{ t }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <!-- End Time -->
+          <div class="form-group col-span-1">
+            <Label>Hora fin</Label>
+            <Select v-model="endTime">
+              <SelectTrigger class="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="t in timeOptions" :key="t" :value="t">
+                  {{ t }}{{ isNextDay(t) ? " (día sig.)" : "" }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <p v-if="error" class="text-sm text-destructive">
-            {{ (error as Error).message }}
-          </p>
-
-          <div class="flex justify-end gap-2 pt-2">
+          <!-- Alerts -->
+          <div class="col-span-2 grid gap-2">
+            <!-- Info -->
+            <div
+              v-if="isNextDay(endTime)"
+              class="flex items-center gap-1.5 rounded-md bg-violet-100 p-2 text-xs font-medium text-violet-600"
+            >
+              <Info class="h-4 w-4" />
+              Termina el día siguiente
+            </div>
+            <!-- Error -->
+            <div
+              v-if="error"
+              class="flex items-center gap-1.5 rounded-md bg-red-100 p-2 text-xs font-medium text-red-600"
+            >
+              <Info class="h-4 w-4" />
+              {{ (error as Error).message }}
+            </div>
+          </div>
+          <!-- Buttons -->
+          <div class="col-span-2 flex justify-end gap-2 pt-2">
             <RouterLink :to="{ name: 'events' }">
               <Button type="button" variant="outline">Cancelar</Button>
             </RouterLink>

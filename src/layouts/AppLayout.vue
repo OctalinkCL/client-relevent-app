@@ -9,7 +9,7 @@ import AppHeader from "@/shared/components/AppHeader.vue";
     <AppSidebar />
     <SidebarInset class="bg-neutral-50">
       <AppHeader />
-      <div class="container mx-auto px-4 pt-4">
+      <div class="container mx-auto p-4">
         <RouterView />
       </div>
     </SidebarInset>
