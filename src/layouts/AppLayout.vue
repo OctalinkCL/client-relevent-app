@@ -7,7 +7,7 @@ import AppHeader from "@/shared/components/AppHeader.vue";
 <template>
   <SidebarProvider :default-open="false">
     <AppSidebar />
-    <SidebarInset>
+    <SidebarInset class="bg-neutral-50">
       <AppHeader />
       <div class="container mx-auto px-4 pt-4">
         <RouterView />
