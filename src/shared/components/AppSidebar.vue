@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import {
@@ -58,6 +59,12 @@ const navItems = computed(() =>
 );
 
 const isActive = (to: string) => route.path.startsWith(to);
+
+const { setOpenMobile, isMobile } = useSidebar();
+
+function handleNavClick() {
+  if (isMobile.value) setOpenMobile(false);
+}
 </script>
 
 <template>
@@ -72,7 +79,7 @@ const isActive = (to: string) => route.path.startsWith(to);
           <SidebarMenu>
             <SidebarMenuItem v-for="item in navItems" :key="item.to">
               <SidebarMenuButton as-child :is-active="isActive(item.to)">
-                <RouterLink :to="item.to">
+                <RouterLink :to="item.to" @click="handleNavClick">
                   <component :is="item.icon" />
                   <span>{{ item.label }}</span>
                 </RouterLink>
