@@ -18,6 +18,9 @@ import dayjs from '@/shared/lib/dayjs'
 
 const store = useAuthStore()
 const { data: events } = useEvents()
+const activeEvents = computed(() =>
+  events.value?.filter(e => dayjs(e.ends_at).isAfter(dayjs())) ?? []
+)
 const { data: sellers } = useCompanySellers()
 const { mutate: createTask, isPending, error } = useCreateTask()
 
@@ -125,7 +128,7 @@ const today = dayjs().format('YYYY-MM-DD')
               </SelectTrigger>
               <SelectContent>
                 <SelectItem
-                  v-for="event in events"
+                  v-for="event in activeEvents"
                   :key="event.id"
                   :value="event.id"
                 >
