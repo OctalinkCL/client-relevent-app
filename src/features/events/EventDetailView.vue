@@ -100,20 +100,23 @@ function formatDateTime(starts: string, ends: string) {
                 alt="Flyer del evento"
                 class="w-full max-w-xs rounded-lg object-cover aspect-[3/4]"
               />
-              <Label
-                for="flyer-upload"
-                class="inline-flex items-center gap-2 cursor-pointer w-fit"
-              >
+              <div class="flex gap-2">
+                <Label for="flyer-upload" class="cursor-pointer">
+                  <Button variant="outline" size="sm" as="span" :disabled="isUploadingFlyer">
+                    <Upload class="size-4 mr-1" />
+                    {{ isUploadingFlyer ? "Subiendo…" : "Cambiar flyer" }}
+                  </Button>
+                </Label>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  as="span"
+                  class="text-destructive hover:text-destructive"
                   :disabled="isUploadingFlyer"
+                  @click="updateEvent({ flyer_url: null })"
                 >
-                  <Upload class="size-4 mr-1" />
-                  {{ isUploadingFlyer ? "Subiendo…" : "Cambiar flyer" }}
+                  Quitar
                 </Button>
-              </Label>
+              </div>
             </div>
 
             <Label

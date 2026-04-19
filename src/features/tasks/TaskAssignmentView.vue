@@ -156,9 +156,20 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
               </Label>
               <div v-else class="flex flex-col gap-2">
                 <img :src="screenshotPreview" class="w-full rounded-lg object-cover" alt="preview" />
-                <Label for="screenshot-input">
-                  <Button variant="outline" size="sm" as="span">Cambiar imagen</Button>
-                </Label>
+                <div class="flex gap-2">
+                  <Label for="screenshot-input">
+                    <Button variant="outline" size="sm" as="span">Cambiar imagen</Button>
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    class="text-destructive hover:text-destructive"
+                    type="button"
+                    @click="screenshotFile = null; screenshotPreview = null"
+                  >
+                    Quitar
+                  </Button>
+                </div>
               </div>
               <input id="screenshot-input" type="file" accept="image/*" class="hidden" @change="onScreenshotChange" />
             </div>
