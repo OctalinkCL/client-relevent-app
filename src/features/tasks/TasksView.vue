@@ -36,7 +36,8 @@ const statusVariant: Record<
 function taskProgress(assignments: { status: string }[]) {
   const total = assignments.length;
   const done = assignments.filter((a) => a.status === "approved").length;
-  return { done, total };
+  const pending = assignments.filter((a) => a.status === "submitted").length;
+  return { done, total, pending };
 }
 </script>
 
@@ -74,11 +75,19 @@ function taskProgress(assignments: { status: string }[]) {
               {{ dayjs(task.deadline).format("D MMM HH:mm") }}
             </p>
           </div>
-          <div class="text-xs text-muted-foreground shrink-0">
-            {{ taskProgress(task.task_assignments as any[]).done }}/{{
-              taskProgress(task.task_assignments as any[]).total
-            }}
-            aprobadas
+          <div class="flex flex-col items-end gap-1 shrink-0">
+            <span class="text-xs text-muted-foreground">
+              {{ taskProgress(task.task_assignments as any[]).done }}/{{
+                taskProgress(task.task_assignments as any[]).total
+              }} aprobadas
+            </span>
+            <Badge
+              v-if="taskProgress(task.task_assignments as any[]).pending > 0"
+              variant="secondary"
+              class="text-xs"
+            >
+              {{ taskProgress(task.task_assignments as any[]).pending }} por revisar
+            </Badge>
           </div>
         </RouterLink>
       </div>
