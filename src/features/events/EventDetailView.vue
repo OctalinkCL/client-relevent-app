@@ -72,7 +72,7 @@ function formatDateTime(starts: string, ends: string) {
     <!-- Header -->
     <header>
       <Button variant="secondary" size="sm" as-child>
-        <RouterLink :to="{ name: 'events' }"> Volver a Eventos </RouterLink>
+        <RouterLink :to="{ name: 'events-detail', params: { id: eventId } }"> Volver al evento </RouterLink>
       </Button>
     </header>
 

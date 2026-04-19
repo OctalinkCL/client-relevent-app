@@ -32,6 +32,12 @@ export const appRoutes: RouteRecordRaw[] = [
         path: 'events/:id',
         name: 'events-detail',
         meta: { roles: ['admin'] },
+        component: () => import('@/features/events/EventHubView.vue'),
+      },
+      {
+        path: 'events/:id/info',
+        name: 'events-detail-info',
+        meta: { roles: ['admin'] },
         component: () => import('@/features/events/EventDetailView.vue'),
       },
       {
