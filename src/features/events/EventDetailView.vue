@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useRoute, RouterLink } from "vue-router";
-import { ChevronLeft, Upload, ImageIcon } from "lucide-vue-next";
+import { Upload, ImageIcon } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEventDetail } from "./useEventDetail";
 import { useUpdateEvent, uploadFlyer } from "./useEventMutations";
+import { deleteImage } from "@/shared/lib/imageUpload";
 import { useAuthStore } from "@/stores/auth";
 import dayjs from "@/shared/lib/dayjs";
 
@@ -50,6 +51,12 @@ async function onFlyerChange(e: Event) {
   } finally {
     isUploadingFlyer.value = false;
   }
+}
+
+async function removeFlyer() {
+  const path = `events/${store.activeCompany!.id}/${eventId}/flyer.jpg`
+  await deleteImage(path)
+  updateEvent({ flyer_url: undefined })
 }
 
 function formatDateTime(starts: string, ends: string) {
@@ -98,7 +105,7 @@ function formatDateTime(starts: string, ends: string) {
               <img
                 :src="event.flyer_url"
                 alt="Flyer del evento"
-                class="w-full max-w-xs rounded-lg object-cover aspect-[3/4]"
+                class="w-full max-w-xs rounded-lg object-cover aspect-3/4"
               />
               <div class="flex gap-2">
                 <Label for="flyer-upload" class="cursor-pointer">
@@ -112,7 +119,7 @@ function formatDateTime(starts: string, ends: string) {
                   size="sm"
                   class="text-destructive hover:text-destructive"
                   :disabled="isUploadingFlyer"
-                  @click="updateEvent({ flyer_url: null })"
+                  @click="removeFlyer"
                 >
                   Quitar
                 </Button>
