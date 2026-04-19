@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useTaskDetail } from "./useTasks";
 import { useReviewSubmission } from "./useTaskMutations";
 import dayjs from "@/shared/lib/dayjs";
@@ -165,25 +165,15 @@ function reject() {
       </div>
     </template>
 
-    <!-- Sheet evidencia -->
-    <Sheet
-      :open="!!activeAssignment"
-      @update:open="
-        (val) => {
-          if (!val) activeAssignment = null;
-        }
-      "
-    >
-      <SheetContent
-        side="bottom"
-        class="max-h-[90vh] overflow-y-auto rounded-t-xl"
-      >
-        <SheetHeader class="mb-4">
-          <SheetTitle>{{ activeAssignment?.profile?.full_name }}</SheetTitle>
-        </SheetHeader>
+    <!-- Dialog evidencia -->
+    <Dialog :open="!!activeAssignment" @update:open="(val: boolean) => { if (!val) activeAssignment = null }">
+      <DialogContent class="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{{ activeAssignment?.profile?.full_name }}</DialogTitle>
+        </DialogHeader>
 
         <template v-if="activeAssignment">
-          <Badge :variant="statusVariant[activeAssignment.status]" class="mb-4">
+          <Badge :variant="statusVariant[activeAssignment.status]" class="w-fit">
             {{ statusLabel[activeAssignment.status] }}
           </Badge>
 
@@ -203,7 +193,7 @@ function reject() {
             <img
               :src="activeAssignment.task_submissions[0].screenshot_url"
               alt="Evidencia"
-              class="w-full rounded-lg object-cover"
+              class="w-full rounded-lg object-contain max-h-[70vh]"
             />
             <p
               v-if="activeAssignment.task_submissions[0].observation"
@@ -212,14 +202,14 @@ function reject() {
               "{{ activeAssignment.task_submissions[0].observation }}"
             </p>
           </div>
-          <p v-else class="text-sm text-muted-foreground mb-4">
+          <p v-else class="text-sm text-muted-foreground">
             Sin evidencia adjunta.
           </p>
 
           <!-- Aprobar / Rechazar -->
           <div
             v-if="activeAssignment.status === 'submitted'"
-            class="flex gap-3 mt-4"
+            class="flex gap-3 mt-2"
           >
             <Button
               variant="outline"
@@ -234,7 +224,7 @@ function reject() {
             </Button>
           </div>
         </template>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

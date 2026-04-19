@@ -37,7 +37,7 @@ const store = useAuthStore();
 
 const allNavItems: NavItem[] = [
   // { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-  { label: "Eventos", to: "/events", icon: CalendarDays, module: "events" },
+  { label: "Eventos", to: "/events", icon: CalendarDays, module: "events", roles: ["admin"] },
   { label: "Tareas", to: "/tasks", icon: ClipboardList, module: "tasks" },
   // {
   //   label: "Puerta",
