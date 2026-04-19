@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAuth } from '@/shared/composables/useAuth'
 import { useRouter } from 'vue-router'
+import { useQuery } from '@tanstack/vue-query'
+import { supabase } from '@/shared/lib/supabase'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,6 +18,23 @@ const store = useAuthStore()
 const { logout } = useAuth()
 const router = useRouter()
 
+const noMemberships = computed(() => store.memberships.length === 0)
+
+const { data: pendingRequests } = useQuery({
+  queryKey: ['my-pending-requests'],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from('member_requests')
+      .select('id')
+      .eq('user_id', store.authUser!.id)
+    if (error) throw error
+    return data
+  },
+  enabled: noMemberships,
+})
+
+const hasPendingRequest = computed(() => !!pendingRequests.value?.length)
+
 async function selectCompany(companyId: string) {
   const membership = store.memberships.find(m => m.company_id === companyId)
   if (!membership) return
@@ -25,13 +45,19 @@ async function selectCompany(companyId: string) {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-background px-4">
-    <!-- Sin membresías: solicitud pendiente -->
-    <Card v-if="store.memberships.length === 0" class="w-full max-w-sm text-center">
+    <!-- Sin membresías -->
+    <Card v-if="noMemberships" class="w-full max-w-sm text-center">
       <CardHeader>
-        <CardTitle>Solicitud enviada</CardTitle>
+        <CardTitle>{{ hasPendingRequest ? 'Solicitud enviada' : 'Sin acceso' }}</CardTitle>
         <CardDescription>
-          Tu solicitud está pendiente de aprobación.<br />
-          El administrador recibirá una notificación pronto.
+          <template v-if="hasPendingRequest">
+            Tu solicitud está pendiente de aprobación.<br />
+            El administrador te notificará cuando sea aceptada.
+          </template>
+          <template v-else>
+            No perteneces a ninguna empresa.<br />
+            Pide a tu administrador un link de invitación para solicitar acceso.
+          </template>
         </CardDescription>
       </CardHeader>
       <CardContent>

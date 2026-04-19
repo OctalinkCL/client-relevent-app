@@ -189,11 +189,21 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
       </Card>
 
       <!-- Estado final -->
-      <Card v-else-if="assignment.status !== 'pending'" class="text-center py-4">
-        <CardContent>
+      <Card v-else-if="assignment.status !== 'pending'">
+        <CardContent class="pt-6 flex flex-col items-center gap-2 text-center">
           <Badge :variant="statusVariant[assignment.status]" class="text-sm px-4 py-1">
             {{ statusLabel[assignment.status] }}
           </Badge>
+          <p class="text-sm font-medium mt-1">
+            <template v-if="assignment.status === 'submitted'">Evidencia enviada</template>
+            <template v-else-if="assignment.status === 'approved'">Tarea aprobada</template>
+            <template v-else-if="assignment.status === 'rejected'">Tarea rechazada</template>
+          </p>
+          <p class="text-xs text-muted-foreground">
+            <template v-if="assignment.status === 'submitted'">El admin revisará tu entrega pronto.</template>
+            <template v-else-if="assignment.status === 'approved'">Tu evidencia fue revisada y aprobada.</template>
+            <template v-else-if="assignment.status === 'rejected'">El admin rechazó tu entrega. Contacta a tu equipo.</template>
+          </p>
         </CardContent>
       </Card>
 
