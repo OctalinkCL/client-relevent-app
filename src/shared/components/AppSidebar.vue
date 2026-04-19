@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/sidebar";
 
 import {
-  LayoutDashboard,
   ClipboardList,
   CalendarDays,
   Users,
@@ -37,7 +36,7 @@ const route = useRoute();
 const store = useAuthStore();
 
 const allNavItems: NavItem[] = [
-  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  // { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Eventos", to: "/events", icon: CalendarDays, module: "events" },
   { label: "Tareas", to: "/tasks", icon: ClipboardList, module: "tasks" },
   // {
