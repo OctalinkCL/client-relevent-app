@@ -8,6 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useQuery } from '@tanstack/vue-query'
 import { supabase } from '@/shared/lib/supabase'
 import { useSubmitTask, uploadSubmissionScreenshot } from './useTaskMutations'
@@ -38,6 +48,7 @@ const screenshotPreview = ref<string | null>(null)
 const observation = ref('')
 const isUploading = ref(false)
 const copied = ref(false)
+const showConfirm = ref(false)
 
 function onScreenshotChange(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
@@ -108,7 +119,7 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
       <img
         v-if="(assignment.task as any)?.flyer_url"
         :src="(assignment.task as any).flyer_url"
-        class="w-full max-w-xs mx-auto rounded-lg mb-4 object-cover aspect-[3/4]"
+        class="w-full max-w-xs mx-auto rounded-lg mb-4 object-cover aspect-3/4"
         alt="Flyer"
       />
 
@@ -132,7 +143,7 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
       <Card v-if="assignment.status === 'pending'">
         <CardHeader><CardTitle class="text-base">Subir evidencia</CardTitle></CardHeader>
         <CardContent>
-          <form class="flex flex-col gap-4" @submit.prevent="submit">
+          <form class="flex flex-col gap-4" @submit.prevent="showConfirm = true">
             <div class="flex flex-col gap-1.5">
               <Label>Screenshot</Label>
               <Label
@@ -174,6 +185,22 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
           </Badge>
         </CardContent>
       </Card>
+
+      <!-- Confirmación envío -->
+      <AlertDialog :open="showConfirm" @update:open="showConfirm = $event">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Enviar evidencia?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Una vez enviada no podrás modificarla. El admin revisará tu entrega.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction @click="submit">Enviar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </template>
   </div>
 </template>
