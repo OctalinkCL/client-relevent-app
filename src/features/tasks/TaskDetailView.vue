@@ -19,6 +19,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -170,6 +171,7 @@ function reject() {
       <DialogContent class="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{{ activeAssignment?.profile?.full_name }}</DialogTitle>
+          <DialogDescription>Evidencia enviada para revisión</DialogDescription>
         </DialogHeader>
 
         <template v-if="activeAssignment">
