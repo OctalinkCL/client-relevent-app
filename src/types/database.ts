@@ -415,6 +415,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      remove_company_member: {
+        Args: { p_member_id: string }
+        Returns: void
+      }
     }
     Enums: {
       company_plan: "starter" | "pro" | "enterprise"

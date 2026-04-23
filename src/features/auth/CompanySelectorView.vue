@@ -26,7 +26,7 @@ const { data: pendingRequests } = useQuery({
     const { data, error } = await supabase
       .from('member_requests')
       .select('id')
-      .eq('user_id', store.authUser!.id)
+      .eq('user_id', store.user!.id)
     if (error) throw error
     return data
   },

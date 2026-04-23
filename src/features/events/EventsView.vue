@@ -6,7 +6,6 @@ import { useEvents } from "./useEvents";
 import dayjs from "@/shared/lib/dayjs";
 import { useAuthStore } from "@/stores/auth";
 // Shadcn
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 // Constants
