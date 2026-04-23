@@ -15,10 +15,10 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import {
-  LayoutDashboard,
   ClipboardList,
   CalendarDays,
   Users,
@@ -36,8 +36,8 @@ const route = useRoute();
 const store = useAuthStore();
 
 const allNavItems: NavItem[] = [
-  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-  { label: "Eventos", to: "/events", icon: CalendarDays, module: "events" },
+  // { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { label: "Eventos", to: "/events", icon: CalendarDays, module: "events", roles: ["admin"] },
   { label: "Tareas", to: "/tasks", icon: ClipboardList, module: "tasks" },
   // {
   //   label: "Puerta",
@@ -58,6 +58,12 @@ const navItems = computed(() =>
 );
 
 const isActive = (to: string) => route.path.startsWith(to);
+
+const { setOpenMobile, isMobile } = useSidebar();
+
+function handleNavClick() {
+  if (isMobile.value) setOpenMobile(false);
+}
 </script>
 
 <template>
@@ -72,7 +78,7 @@ const isActive = (to: string) => route.path.startsWith(to);
           <SidebarMenu>
             <SidebarMenuItem v-for="item in navItems" :key="item.to">
               <SidebarMenuButton as-child :is-active="isActive(item.to)">
-                <RouterLink :to="item.to">
+                <RouterLink :to="item.to" @click="handleNavClick">
                   <component :is="item.icon" />
                   <span>{{ item.label }}</span>
                 </RouterLink>

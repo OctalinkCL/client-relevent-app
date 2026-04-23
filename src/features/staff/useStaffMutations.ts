@@ -53,10 +53,7 @@ export function useRemoveMember() {
 
   return useMutation({
     mutationFn: async (memberId: string) => {
-      const { error } = await supabase
-        .from('company_members')
-        .delete()
-        .eq('id', memberId)
+      const { error } = await supabase.rpc('remove_company_member', { p_member_id: memberId })
       if (error) throw error
     },
     onSuccess: () => {

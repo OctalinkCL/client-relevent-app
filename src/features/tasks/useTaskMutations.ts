@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/shared/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import dayjs from '@/shared/lib/dayjs'
-import { validateImageFile } from '@/shared/lib/validateFile'
+import { uploadImage } from '@/shared/lib/imageUpload'
 
 interface CreateTaskInput {
   eventId: string
@@ -131,31 +131,12 @@ export function useSubmitTask() {
 }
 
 export async function uploadTaskFlyer(companyId: string, taskId: string, file: File): Promise<{ url: string; path: string }> {
-  validateImageFile(file)
-  const ext = file.name.split('.').pop()
-  const path = `tasks/${companyId}/${taskId}/flyer.${ext}`
-
-  const { error } = await supabase.storage
-    .from('relevent-media')
-    .upload(path, file, { upsert: true })
-
-  if (error) throw error
-
-  const { data } = supabase.storage.from('relevent-media').getPublicUrl(path)
-  return { url: data.publicUrl, path }
+  const path = `tasks/${companyId}/${taskId}/flyer.jpg`
+  return uploadImage(file, path, 'flyer')
 }
 
 export async function uploadSubmissionScreenshot(userId: string, assignmentId: string, file: File): Promise<string> {
-  validateImageFile(file)
-  const ext = file.name.split('.').pop()
-  const path = `submissions/${userId}/${assignmentId}/screenshot.${ext}`
-
-  const { error } = await supabase.storage
-    .from('relevent-media')
-    .upload(path, file, { upsert: true })
-
-  if (error) throw error
-
-  const { data } = supabase.storage.from('relevent-media').getPublicUrl(path)
-  return data.publicUrl
+  const path = `submissions/${userId}/${assignmentId}/screenshot.jpg`
+  const { url } = await uploadImage(file, path, 'screenshot')
+  return url
 }

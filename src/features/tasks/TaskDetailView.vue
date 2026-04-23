@@ -1,60 +1,85 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
-import { ChevronLeft, Check, X, Eye } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ref } from "vue";
+import { useRoute, RouterLink } from "vue-router";
+import { ChevronLeft, Check, X, Eye } from "lucide-vue-next";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle,
-} from '@/components/ui/sheet'
-import { useTaskDetail } from './useTasks'
-import { useReviewSubmission } from './useTaskMutations'
-import dayjs from '@/shared/lib/dayjs'
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const route = useRoute()
-const taskId = route.params.id as string
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useTaskDetail } from "./useTasks";
+import { useReviewSubmission } from "./useTaskMutations";
+import dayjs from "@/shared/lib/dayjs";
 
-const { data: task, isLoading } = useTaskDetail(taskId)
-const { mutate: review, isPending: reviewing } = useReviewSubmission()
+const route = useRoute();
+const taskId = route.params.id as string;
 
-const activeAssignment = ref<any>(null)
+const { data: task, isLoading } = useTaskDetail(taskId);
+const { mutate: review, isPending: reviewing } = useReviewSubmission();
+
+const activeAssignment = ref<any>(null);
 
 const statusLabel: Record<string, string> = {
-  pending: 'Pendiente',
-  submitted: 'Enviada',
-  approved: 'Aprobada',
-  rejected: 'Rechazada',
-  expired: 'Expirada',
-}
-const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  pending: 'outline',
-  submitted: 'secondary',
-  approved: 'default',
-  rejected: 'destructive',
-  expired: 'destructive',
-}
+  pending: "Pendiente",
+  submitted: "Enviada",
+  approved: "Aprobada",
+  rejected: "Rechazada",
+  expired: "Expirada",
+};
+const statusVariant: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
+  pending: "outline",
+  submitted: "secondary",
+  approved: "default",
+  rejected: "destructive",
+  expired: "destructive",
+};
 
 function openEvidence(assignment: any) {
-  activeAssignment.value = assignment
+  activeAssignment.value = assignment;
 }
 
 function approve() {
-  if (!activeAssignment.value) return
-  review({ assignmentId: activeAssignment.value.id, status: 'approved', taskId })
-  activeAssignment.value = null
+  if (!activeAssignment.value) return;
+  review({
+    assignmentId: activeAssignment.value.id,
+    status: "approved",
+    taskId,
+  });
+  activeAssignment.value = null;
 }
 
 function reject() {
-  if (!activeAssignment.value) return
-  review({ assignmentId: activeAssignment.value.id, status: 'rejected', taskId })
-  activeAssignment.value = null
+  if (!activeAssignment.value) return;
+  review({
+    assignmentId: activeAssignment.value.id,
+    status: "rejected",
+    taskId,
+  });
+  activeAssignment.value = null;
 }
 </script>
 
 <template>
-  <div class="p-4 max-w-lg mx-auto">
+  <div class="grid gap-4">
     <RouterLink
       :to="{ name: 'tasks' }"
       class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
@@ -75,86 +100,119 @@ function reject() {
       <div class="mb-4">
         <h1 class="text-xl font-semibold">{{ task.title }}</h1>
         <p class="text-sm text-muted-foreground mt-1">
-          {{ (task.event as any)?.name }} · Límite {{ dayjs(task.deadline).format('D MMM YYYY, HH:mm') }}
+          {{ (task.event as any)?.name }} · Límite
+          {{ dayjs(task.deadline).format("D MMM YYYY, HH:mm") }}
         </p>
-        <p v-if="task.description" class="text-sm mt-2 text-foreground/80">{{ task.description }}</p>
+        <p v-if="task.description" class="text-sm mt-2 text-foreground/80">
+          {{ task.description }}
+        </p>
       </div>
 
-      <!-- Caption -->
-      <Card v-if="task.caption_template" class="mb-4">
-        <CardHeader class="pb-2"><CardTitle class="text-sm">Texto sugerido</CardTitle></CardHeader>
-        <CardContent>
-          <p class="text-sm whitespace-pre-wrap text-muted-foreground">{{ task.caption_template }}</p>
-        </CardContent>
-      </Card>
-
-      <!-- Sellers -->
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="text-base flex items-center justify-between">
-            <span>Sellers</span>
-            <span class="text-sm font-normal text-muted-foreground">
-              {{ (task.task_assignments as any[]).filter(a => a.status === 'approved').length }}/{{ (task.task_assignments as any[]).length }} aprobadas
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="p-0">
-          <div
-            v-for="assignment in (task.task_assignments as any[])"
-            :key="assignment.id"
-            class="flex items-center justify-between px-4 py-3 border-b last:border-0"
-          >
-            <div class="flex flex-col gap-1">
-              <span class="text-sm font-medium">{{ assignment.profile?.full_name }}</span>
-              <Badge :variant="statusVariant[assignment.status]" class="w-fit text-xs">
-                {{ statusLabel[assignment.status] }}
-              </Badge>
-            </div>
-            <Button
-              v-if="assignment.status !== 'pending'"
-              size="sm"
-              variant="outline"
-              class="shrink-0"
-              @click="openEvidence(assignment)"
+      <div class="grid gap-4 lg:grid-cols-2">
+        <!-- Data -->
+        <Card>
+          <CardHeader class="pb-2 flex items-center justify-between"
+            ><CardTitle class="text-sm font-semibold"
+              >Datos de la tarea</CardTitle
             >
-              <Eye class="size-4 mr-1" />
-              Ver
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <span class="text-sm font-normal text-muted-foreground">
+              {{
+                (task.task_assignments as any[]).filter(
+                  (a) => a.status === "approved",
+                ).length
+              }}/{{ (task.task_assignments as any[]).length }} aprobadas
+            </span>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm whitespace-pre-wrap text-muted-foreground">
+              <pre>{{ task }}</pre>
+            </p>
+          </CardContent>
+        </Card>
+
+        <!-- Sellers -->
+        <Card class="ring-0 py-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="w-[100px]">Estado</TableHead>
+                <TableHead>Vendedor</TableHead>
+                <TableHead class="text-right"> Acciones </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow
+                v-for="item in task.task_assignments as any[]"
+                :key="item.id"
+              >
+                <TableCell>{{ statusLabel[item.status] }}</TableCell>
+                <TableCell>{{ item.profile?.full_name }}</TableCell>
+                <TableCell class="text-right">
+                  <Button
+                    v-if="item.status !== 'pending'"
+                    size="sm"
+                    variant="outline"
+                    class="shrink-0"
+                    @click="openEvidence(item)"
+                  >
+                    <Eye class="size-4 mr-1" />
+                    Ver
+                  </Button></TableCell
+                >
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Card>
+      </div>
     </template>
 
-    <!-- Sheet evidencia -->
-    <Sheet :open="!!activeAssignment" @update:open="val => { if (!val) activeAssignment = null }">
-      <SheetContent side="bottom" class="max-h-[90vh] overflow-y-auto rounded-t-xl">
-        <SheetHeader class="mb-4">
-          <SheetTitle>{{ activeAssignment?.profile?.full_name }}</SheetTitle>
-        </SheetHeader>
+    <!-- Dialog evidencia -->
+    <Dialog :open="!!activeAssignment" @update:open="(val: boolean) => { if (!val) activeAssignment = null }">
+      <DialogContent class="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{{ activeAssignment?.profile?.full_name }}</DialogTitle>
+          <DialogDescription>Evidencia enviada para revisión</DialogDescription>
+        </DialogHeader>
 
         <template v-if="activeAssignment">
-          <Badge :variant="statusVariant[activeAssignment.status]" class="mb-4">
+          <Badge :variant="statusVariant[activeAssignment.status]" class="w-fit">
             {{ statusLabel[activeAssignment.status] }}
           </Badge>
 
           <!-- Screenshot -->
-          <div v-if="activeAssignment.task_submissions?.[0]" class="flex flex-col gap-3">
+          <div
+            v-if="activeAssignment.task_submissions?.[0]"
+            class="flex flex-col gap-3"
+          >
             <p class="text-xs text-muted-foreground">
-              Enviada {{ dayjs(activeAssignment.task_submissions[0].submitted_at).format('D MMM YYYY, HH:mm') }}
+              Enviada
+              {{
+                dayjs(activeAssignment.task_submissions[0].submitted_at).format(
+                  "D MMM YYYY, HH:mm",
+                )
+              }}
             </p>
             <img
               :src="activeAssignment.task_submissions[0].screenshot_url"
               alt="Evidencia"
-              class="w-full rounded-lg object-cover"
+              class="w-full rounded-lg object-contain max-h-[70vh]"
             />
-            <p v-if="activeAssignment.task_submissions[0].observation" class="text-sm text-muted-foreground italic">
+            <p
+              v-if="activeAssignment.task_submissions[0].observation"
+              class="text-sm text-muted-foreground italic"
+            >
               "{{ activeAssignment.task_submissions[0].observation }}"
             </p>
           </div>
-          <p v-else class="text-sm text-muted-foreground mb-4">Sin evidencia adjunta.</p>
+          <p v-else class="text-sm text-muted-foreground">
+            Sin evidencia adjunta.
+          </p>
 
           <!-- Aprobar / Rechazar -->
-          <div v-if="activeAssignment.status === 'submitted'" class="flex gap-3 mt-4">
+          <div
+            v-if="activeAssignment.status === 'submitted'"
+            class="flex gap-3 mt-2"
+          >
             <Button
               variant="outline"
               class="flex-1 text-destructive hover:text-destructive"
@@ -168,7 +226,7 @@ function reject() {
             </Button>
           </div>
         </template>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

@@ -15,7 +15,7 @@ const { data: requests, isLoading: loadingRequests } = usePendingRequests()
 
 const { mutate: approve, isPending: approving } = useApproveRequest()
 const { mutate: reject, isPending: rejecting } = useRejectRequest()
-const { mutate: remove, isPending: removing } = useRemoveMember()
+const { mutate: remove, isPending: removing, error: removeError } = useRemoveMember()
 
 const copied = ref(false)
 const joinLink = computed(() => {
@@ -116,6 +116,10 @@ const roleLabel: Record<string, string> = {
       <Users class="size-10 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">Sin miembros en tu equipo</p>
     </div>
+
+    <p v-if="removeError" class="text-sm text-destructive mb-4">
+      Error al desvincular: {{ (removeError as Error).message }}
+    </p>
 
     <!-- Link de invitación -->
     <Card v-if="joinLink">

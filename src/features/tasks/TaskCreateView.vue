@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { ChevronLeft, ImageIcon, Upload } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,12 +16,18 @@ import { useCreateTask, uploadTaskFlyer } from './useTaskMutations'
 import { useAuthStore } from '@/stores/auth'
 import dayjs from '@/shared/lib/dayjs'
 
+const route = useRoute()
 const store = useAuthStore()
 const { data: events } = useEvents()
+const activeEvents = computed(() =>
+  events.value?.filter(e => dayjs(e.ends_at).isAfter(dayjs())) ?? []
+)
 const { data: sellers } = useCompanySellers()
 const { mutate: createTask, isPending, error } = useCreateTask()
 
-const eventId = ref('')
+const preselectedEventId = route.query.event_id as string | undefined
+const eventId = ref(preselectedEventId ?? '')
+const eventLocked = !!preselectedEventId
 const selectedEvent = computed(() => events.value?.find(e => e.id === eventId.value))
 const title = ref('')
 const description = ref('')
@@ -119,13 +125,13 @@ const today = dayjs().format('YYYY-MM-DD')
           <!-- Evento -->
           <div class="flex flex-col gap-1.5">
             <Label>Evento</Label>
-            <Select v-model="eventId" required>
+            <Select v-model="eventId" :disabled="eventLocked" required>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un evento" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem
-                  v-for="event in events"
+                  v-for="event in activeEvents"
                   :key="event.id"
                   :value="event.id"
                 >

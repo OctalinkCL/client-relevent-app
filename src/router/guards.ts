@@ -1,6 +1,11 @@
 import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+function getHomeRoute(role: string | null) {
+  if (role === 'seller') return { name: 'tasks' }
+  return { name: 'events' }
+}
+
 export function setupGuards(router: Router) {
   router.beforeEach(async (to) => {
     const store = useAuthStore()
@@ -18,7 +23,7 @@ export function setupGuards(router: Router) {
 
     // Ya autenticado intenta ir a login → adentro
     if (!requiresAuth && isAuthenticated) {
-      return hasCompany ? { name: 'dashboard' } : { name: 'select-company' }
+      return hasCompany ? getHomeRoute(store.activeRole) : { name: 'select-company' }
     }
 
     // Autenticado pero sin company → selector
@@ -26,10 +31,15 @@ export function setupGuards(router: Router) {
       return { name: 'select-company' }
     }
 
-    // Rol insuficiente → dashboard
+    // Dashboard → redirigir al home del rol (dashboard está oculto, pendiente de uso futuro)
+    if (to.name === 'dashboard' && isAuthenticated && hasCompany) {
+      return getHomeRoute(store.activeRole)
+    }
+
+    // Rol insuficiente → home del rol
     const requiredRoles = to.meta.roles as string[] | undefined
     if (requiredRoles && store.activeRole && !requiredRoles.includes(store.activeRole)) {
-      return { name: 'dashboard' }
+      return getHomeRoute(store.activeRole)
     }
   })
 }
